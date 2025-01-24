@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "write_compress.h"
+#include "occurrences.h"
 #include "bit_buffer.h"
 
 /**
@@ -96,7 +97,10 @@ int write_binary(bit_buffer_t *compressed_buff, FILE *output)
     return EXIT_SUCCESS;
 }
 
-int write_compress(code_t **codes, char *file_buff, int buff_len)
+int write_compress(
+    code_t **codes,
+    char *file_buff, int buff_len,
+    char_node_t **occurr_arr, int occurr_len)
 {
     FILE *output = NULL;
     bit_buffer_t *compressed_buff = NULL;
@@ -115,5 +119,8 @@ int write_compress(code_t **codes, char *file_buff, int buff_len)
         fclose(output);
         return EXIT_FAILURE;
     }
-    return write_binary(compressed_buff, output);
+    if (dump_occurr_arr(occurr_arr, occurr_len, output) == EXIT_SUCCESS) {
+        return write_binary(compressed_buff, output);
+    }
+    return EXIT_FAILURE;
 }

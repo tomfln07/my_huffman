@@ -3,15 +3,20 @@ SRC_FILES = src/readfile.c \
 			src/huffman_tree.c \
 			src/binary_codes.c \
 			src/write_compress.c \
-			src/bit_buffer.c
+			src/bit_buffer.c \
+			src/flags.c \
+			src/compress.c \
+			src/uncompress.c
 TESTS_FILES = 	
+
+BIN_PATH = bin/
 
 SRC_OBJS = $(SRC_FILES:.c=.o)
 TESTS_OBJS = $(TESTS_FILES:.c=.o)
 
-BIN_NAME = bin/huffman
-DBG_BIN_NAME = bin/huffman_debug
-TESTS_NAME = bin/huffman_tests
+BIN_NAME = huffman
+DBG_BIN_NAME = huffman_debug
+TESTS_NAME = huffman_tests
 
 GCC_FLAGS = -Iinclude -Wall -Wextra
 TESTS_FLAGS = --coverage -lcriterion
@@ -28,13 +33,13 @@ $(TESTS_OBJS): %.o: %.c
 		gcc $(GCC_FLAGS) -c $< -o $@
 
 $(BIN_NAME):	$(SRC_OBJS) src/main.o
-				gcc -o $(BIN_NAME) $(SRC_OBJS) src/main.o $(GCC_FLAGS)
+				gcc -o $(BIN_PATH)$(BIN_NAME) $(SRC_OBJS) src/main.o $(GCC_FLAGS)
 
 $(DBG_BIN_NAME):	$(SRC_OBJS) src/main.o
-					gcc -o $(DBG_BIN_NAME) $(SRC_OBJS) src/main.o $(GCC_FLAGS) $(DBG_FLAGS)
+					gcc -o $(BIN_PATH)$(DBG_BIN_NAME) $(SRC_OBJS) src/main.o $(GCC_FLAGS) $(DBG_FLAGS)
 
 unit_tests: clean $(BIN_NAME) $(TESTS_OBJS)
-		gcc -o $(TESTS_NAME) $(TESTS_OBJS) $(GCC_FLAGS) $(TESTS_FLAGS)
+		gcc -o $(BIN_PATH)$(TESTS_NAME) $(TESTS_OBJS) $(GCC_FLAGS) $(TESTS_FLAGS)
 
 tests_run: unit_tests
 			./unit_tests
@@ -49,5 +54,6 @@ clean:
 		rm -f */*.gcda
 
 fclean: clean
-		rm -f $(BIN_NAME)
-		rm -f $(TESTS_NAME)
+		rm -f $(BIN_PATH)$(BIN_NAME)
+		rm -f $(BIN_PATH)$(DBG_BIN_NAME)
+		rm -f $(BIN_PATH)$(TESTS_NAME)

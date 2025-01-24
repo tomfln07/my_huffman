@@ -80,6 +80,54 @@ int get_char_index(char_node_t **occurr, int arr_len, char c)
     return -1;
 }
 
+/**
+ * Put the occurrences array into the specified file
+ */
+int dump_occurr_arr(char_node_t **occurr, int nbr_occurr, FILE *output)
+{
+    int bytes_wrote = 0;
+
+    if (!output || !occurr) {
+        return EXIT_FAILURE;
+    }
+    bytes_wrote += fwrite(&nbr_occurr, sizeof(int), 1, output);
+    for (int i = 0; i < nbr_occurr; i++) {
+        bytes_wrote += fwrite(&occurr[i]->c, sizeof(char), 1, output);
+        bytes_wrote += fwrite(&occurr[i]->freq, sizeof(int), 1, output);
+    }
+    return EXIT_SUCCESS;
+}
+
+/**
+ * Reads the occurrences array in the header of a compressed file
+ */
+char_node_t **read_header_occurrs(char *filepath)
+{
+    FILE *file = fopen(filepath, "rb");
+    int nbr_nodes = 0;
+    char_node_t **occurr = NULL;
+
+    if (!file) {
+        perror("Could not open compressed file");
+        return NULL;
+    }
+    if (fread(&nbr_nodes, sizeof(int), 1, file) != 1) {
+        perror("Could not read the number of different chars in compressed file's header");
+        return NULL;
+    }
+    occurr = malloc((nbr_nodes + 1) * sizeof(char_node_t *));
+    for (int i = 0; i < nbr_nodes; i++) {
+        occurr[i] = malloc(sizeof(char_node_t));
+        fread(&occurr[i]->c, sizeof(char), 1, file);
+        fread(&occurr[i]->freq, sizeof(int), 1, file);
+        occurr[i]->l = NULL;
+        occurr[i]->r = NULL;
+        occurr[i]->type = LEAF;
+    }
+    occurr[nbr_nodes] = NULL;
+    return occurr;
+}
+
 char_node_t **get_occurr(char *file_buff, long file_len)
 {
     int occurr_len = 0;
