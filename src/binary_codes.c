@@ -3,7 +3,20 @@
 #include <string.h>
 #include "binary_codes.h"
 #include "huffman_tree.h"
-//#include "bit_buffer.h"
+
+void free_codes(code_t **codes)
+{
+    if (!codes) {
+        return;
+    }
+    for (int i = 0; codes[i]; i++) {
+        if (codes[i]->code) {
+            free(codes[i]->code);
+            free(codes[i]);
+        }
+    }
+    free(codes);
+}
 
 code_t *new_code(char bin_path[], char c)
 {

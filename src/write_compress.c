@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "write_compress.h"
+#include "bit_buffer.h"
 
 /**
  * Takes a char, and get its binary represention
@@ -34,62 +35,71 @@ char *add_bin_code_to_buff(char c, code_t **codes, char *compress_buff, int *buf
     return compress_buff;
 }
 
-char *get_compress(code_t **codes, char *file_buff, int buff_len)
+bit_buffer_t *get_compress(code_t **codes, char *file_buff, int buff_len)
 {
-    int compress_buff_len = 0;
-    char *compress_buff = NULL;
+    bit_buffer_t *bit_buff = create_bit_buffer(128);
+    char *code = NULL;
+    int code_len = 0;
 
     if (!file_buff || !codes) {
         perror("Invalid NULL file_buff or codes for buff to binary conversion");
         return NULL;
     }
-    compress_buff = calloc(1, 1);
-    if (!compress_buff) {
-        perror("Could not allocate memory for compress_buff");
+    if (!bit_buff) {
         return NULL;
     }
     for (int i = 0; i < buff_len; i++) {
-        compress_buff = add_bin_code_to_buff(file_buff[i], codes, compress_buff, &compress_buff_len);
-        if (!compress_buff) {
-            return NULL;
+        for (int j = 0; codes[j]; j++) {
+            if (file_buff[i] == codes[j]->c) {
+                code = codes[j]->code;
+                break;
+            }
+        }
+        code_len = strlen(code);
+        for (int j = 0; j < code_len; j++) {
+            add_bit(bit_buff, code[j] - '0');
         }
     }
-    printf("%i - %i\n", compress_buff_len, (8 - (compress_buff_len % 8)) % 8);
-    return compress_buff;
+    return bit_buff;
 }
 
-int write_binary(char *compressed_buff, FILE *output)
+int write_binary(bit_buffer_t *compressed_buff, FILE *output)
 {
-    int bits_used = 0;
-    char buff = 0;
+    unsigned int bytes_wrote = 0;
 
-    for (int i = 0; compressed_buff[i] != '\0'; i++) {
-        buff = buff << 1 | (compressed_buff[i] - '0');
-        bits_used++;
-
-        if (bits_used == 8) {
-            if (fwrite(&buff, 1, 1, output) != 1) {
-                perror("Failed to write byte to file");
-                return EXIT_FAILURE;
-            }
-            bits_used = 0;
-            buff = 0;
+    if (!compressed_buff || !output) {
+        if (!compressed_buff) {
+            printf("Invaid NULL bit_buffer");
+        } else {
+            free_bit_buff(compressed_buff);
         }
-    }
-    if (bits_used > 0) {
-        buff = buff << (8 - bits_used);
-        if (fwrite(&buff, 1, 1, output) != 1) {
-            perror("Failed to write remaining byte to file");
-            return EXIT_FAILURE;
+        if (!output) {
+            printf("Invaid NULL output file");
+        } else {
+            fclose(output);
         }
+        return EXIT_FAILURE;
     }
+    bytes_wrote = fwrite(compressed_buff->buff, 1, compressed_buff->used_bits / 8, output);
+    if (compressed_buff->used_bits / 8.0 > 0) {
+        bytes_wrote += fwrite(compressed_buff->buff + compressed_buff->used_bits / 8, 1, 1, output);
+    }
+    if ((compressed_buff->used_bits / 8.0 > 0 && bytes_wrote != compressed_buff->used_bits / 8 + 1)
+        || (compressed_buff->used_bits / 8.0 < 0 && bytes_wrote != compressed_buff->used_bits / 8)) {
+        perror("Could not write the entirety of the compressed data");
+        fclose(output);
+        free_bit_buff(compressed_buff);
+        return EXIT_FAILURE;
+    }
+    fclose(output);
+    free_bit_buff(compressed_buff);
     return EXIT_SUCCESS;
 }
 
 int write_compress(code_t **codes, char *file_buff, int buff_len)
 {
     FILE *output = NULL;
-    char *compressed_buff = NULL;
+    bit_buffer_t *compressed_buff = NULL;
     
     if (!file_buff || !codes) {
         perror("Invalid NULL file_buff or codes for buff to binary conversion");

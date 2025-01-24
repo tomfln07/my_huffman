@@ -12,4 +12,5 @@ typedef struct code_s
  * Retrieve the code for every chars based on the constructed binary tree
  */
 code_t **get_codes(char_node_t *tree, int nbr_chars);
+void free_codes(code_t **codes);
 #endif

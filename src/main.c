@@ -35,5 +35,6 @@ int main(int ac, char **av)
     free(file_buff);
     free_occurr_arr(occurr_arr);
     free_tree(tree);
+    free_codes(codes);
     return EXIT_SUCCESS;
 }
