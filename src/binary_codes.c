@@ -38,8 +38,8 @@ code_t *new_code(char bin_path[], char c)
 
 int find_bin_codes(char_node_t *node, int tree_depth, code_t **codes, int *nbr_codes, char bin_path[])
 {
-    char path_l[tree_depth];
-    char path_r[tree_depth];
+    char path_l[tree_depth + 1];
+    char path_r[tree_depth + 1];
 
     if (!node->l && !node->r) {
         codes[*nbr_codes] = new_code(bin_path, node->c);

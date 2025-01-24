@@ -10,23 +10,28 @@ SRC_OBJS = $(SRC_FILES:.c=.o)
 TESTS_OBJS = $(TESTS_FILES:.c=.o)
 
 BIN_NAME = bin/huffman
+DBG_BIN_NAME = bin/huffman_debug
 TESTS_NAME = bin/huffman_tests
 
-GCC_FLAGS = -Iinclude -Wall -Wextra -fsanitize=address
+GCC_FLAGS = -Iinclude -Wall -Wextra
 TESTS_FLAGS = --coverage -lcriterion
+DBG_FLAGS = -g -pg -fsanitize=address
 
 all: $(BIN_NAME)
 
 re: fclean $(BIN_NAME)
 
 %.o: %.c
-		gcc $(GCC_FLAGS) -c $< -o $@ -g
+		gcc $(GCC_FLAGS) -c $< -o $@ -g -pg
 
 $(TESTS_OBJS): %.o: %.c
 		gcc $(GCC_FLAGS) -c $< -o $@
 
 $(BIN_NAME):	$(SRC_OBJS) src/main.o
 				gcc -o $(BIN_NAME) $(SRC_OBJS) src/main.o $(GCC_FLAGS)
+
+$(DBG_BIN_NAME):	$(SRC_OBJS) src/main.o
+					gcc -o $(DBG_BIN_NAME) $(SRC_OBJS) src/main.o $(GCC_FLAGS) $(DBG_FLAGS)
 
 unit_tests: clean $(BIN_NAME) $(TESTS_OBJS)
 		gcc -o $(TESTS_NAME) $(TESTS_OBJS) $(GCC_FLAGS) $(TESTS_FLAGS)
