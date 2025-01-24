@@ -1,0 +1,11 @@
+# Txt files
+class_graph
+dummy
+
+# Outputs
+*.out
+*.o
+*.lite
+
+bin/*
+!bin/.gitkeep
