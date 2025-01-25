@@ -101,30 +101,31 @@ int dump_occurr_arr(char_node_t **occurr, int nbr_occurr, FILE *output)
 /**
  * Reads the occurrences array in the header of a compressed file
  */
-char_node_t **read_header_occurrs(char *filepath)
+char_node_t **read_header_occurrs(char *filepath, int *end_header_i)
 {
-    FILE *file = fopen(filepath, "rb");
+    FILE *input = fopen(filepath, "rb");
     int nbr_nodes = 0;
     char_node_t **occurr = NULL;
 
-    if (!file) {
+    if (!input) {
         perror("Could not open compressed file");
         return NULL;
     }
-    if (fread(&nbr_nodes, sizeof(int), 1, file) != 1) {
+    if (fread(&nbr_nodes, sizeof(int), 1, input) != 1) {
         perror("Could not read the number of different chars in compressed file's header");
         return NULL;
     }
     occurr = malloc((nbr_nodes + 1) * sizeof(char_node_t *));
     for (int i = 0; i < nbr_nodes; i++) {
         occurr[i] = malloc(sizeof(char_node_t));
-        fread(&occurr[i]->c, sizeof(char), 1, file);
-        fread(&occurr[i]->freq, sizeof(int), 1, file);
+        fread(&occurr[i]->c, sizeof(char), 1, input);
+        fread(&occurr[i]->freq, sizeof(int), 1, input);
         occurr[i]->l = NULL;
         occurr[i]->r = NULL;
         occurr[i]->type = LEAF;
     }
     occurr[nbr_nodes] = NULL;
+    *end_header_i = ftell(input);
     return occurr;
 }
 

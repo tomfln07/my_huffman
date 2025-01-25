@@ -6,7 +6,9 @@ dummy
 *.out
 *.o
 *.lite
+uncompressed
 
 bin/*
 !bin/.gitkeep
 .vscode
+readme.md

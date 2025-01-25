@@ -6,7 +6,8 @@ SRC_FILES = src/readfile.c \
 			src/bit_buffer.c \
 			src/flags.c \
 			src/compress.c \
-			src/uncompress.c
+			src/uncompress.c \
+			src/write_uncompress.c
 TESTS_FILES = 	
 
 BIN_PATH = bin/
