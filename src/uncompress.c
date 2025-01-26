@@ -36,11 +36,32 @@ unsigned char *extract_compressed(char *filepath, int start_i, int *nbr_bits)
     return compressed_data;
 }
 
+char_node_t **read_header(char *filepath, int *end_header_i, int *nbr_bits_compress)
+{
+    char_node_t **occurr_arr = NULL;
+    //int nbr_bits = 0; // representing the accual compressed data
+    FILE *input = fopen(filepath, "rb");
+
+    if (!input) {
+        perror("Could not open compressed file");
+        return NULL;
+    }
+    fread(nbr_bits_compress, sizeof(int), 1, input);
+    occurr_arr = read_header_occurrs(input);
+    if (!occurr_arr) {
+        fclose(input);
+        return NULL;
+    }
+    *end_header_i = ftell(input);
+    fclose(input);
+    return occurr_arr;
+}
+
 int uncompress(char *filepath)
 {
     int end_header_i = 0;
-
-    char_node_t **occurr_arr = read_header_occurrs(filepath, &end_header_i);
+    int bits_compress = 0;
+    char_node_t **occurr_arr = read_header(filepath, &end_header_i, &bits_compress);
     char_node_t *tree = NULL;
     code_t **codes = NULL;
     unsigned char *compressed_bytes = NULL;
@@ -73,7 +94,7 @@ int uncompress(char *filepath)
         return EXIT_FAILURE;
     }
     //printf("%s\n", compressed_bytes);
-    write_uncompressed(codes, compressed_bytes, nbr_bytes, get_tree_depth(tree));
+    write_uncompressed(codes, compressed_bytes, nbr_bytes, get_tree_depth(tree), bits_compress);
     free_tree(tree);
     free_occurr_arr(occurr_arr);
     free_codes(codes);

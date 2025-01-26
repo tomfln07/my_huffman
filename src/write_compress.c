@@ -96,6 +96,15 @@ int write_binary(bit_buffer_t *compressed_buff, FILE *output)
     free_bit_buff(compressed_buff);
     return EXIT_SUCCESS;
 }
+/**
+ * Header: <nbr of bits><nbr of chars>[<char><occurrence>...]
+ */
+int write_header(char_node_t **occurr, int nbr_occurr, bit_buffer_t *compressed_buff, FILE *output)
+{
+    // TODO: bytes sequence to identify compressed files before decompression
+    fwrite(&compressed_buff->used_bits, sizeof(unsigned int), 1, output);
+    return dump_occurr_arr(occurr,  nbr_occurr, output);
+}
 
 int write_compress(
     code_t **codes,
@@ -119,7 +128,7 @@ int write_compress(
         fclose(output);
         return EXIT_FAILURE;
     }
-    if (dump_occurr_arr(occurr_arr, occurr_len, output) == EXIT_SUCCESS) {
+    if (write_header(occurr_arr, occurr_len, compressed_buff, output) == EXIT_SUCCESS) {
         return write_binary(compressed_buff, output);
     }
     return EXIT_FAILURE;
