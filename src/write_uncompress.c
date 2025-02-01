@@ -39,7 +39,6 @@ int write_uncompressed(
             code_i = find_code_i(code, codes);
             if (code_i != -1) {
                 memset(code, 0, max_code_len);
-                //printf("%s", code_found);
                 fwrite(&codes[code_i]->c, sizeof(char), 1, fd);
             }
             bits_read++;
@@ -48,6 +47,5 @@ int write_uncompressed(
             }
         }
     }
-    //printf("\n");
     return EXIT_SUCCESS;
 }

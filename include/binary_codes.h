@@ -4,7 +4,7 @@
 
 typedef struct code_s
 {
-    char c;
+    unsigned char c;
     char *code;
 } code_t;
 

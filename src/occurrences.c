@@ -16,16 +16,20 @@ void free_occurr_arr(char_node_t **occurr)
 
 int get_occurr_len(char_node_t **occurr)
 {
-    static int occurr_len = 0;
-    static int has_been_called = 0;
+    int occurr_len = 0;
+    //int has_been_called = 0;
 
-    if (has_been_called) {
+    /*if (has_been_called) {
         return occurr_len;
+    }*/
+    if (!occurr) {
+        perror("Cannot get invalid NULL occurr lenght");
+        return -1;
     }
     while (occurr[occurr_len]) {
         occurr_len++;
     }
-    has_been_called = 1;
+    //has_been_called = 1;
     return occurr_len;
 }
 
@@ -46,7 +50,7 @@ char_node_t **realloc_occur_arr(char_node_t **occurr, int curr_len, int new_len)
     return new_arr;
 }
 
-char_node_t **add_new_char(char_node_t **occurr, int arr_len, char c)
+char_node_t **add_new_char(char_node_t **occurr, int arr_len, unsigned char c)
 {
     char_node_t **new_arr = realloc_occur_arr(occurr, arr_len, arr_len + 1);
 
@@ -70,7 +74,7 @@ char_node_t **add_new_char(char_node_t **occurr, int arr_len, char c)
  * Find the index of a char in the occurr arr
  * @return Returns -1 if it's not in the occurr arr
  */
-int get_char_index(char_node_t **occurr, int arr_len, char c)
+int get_char_index(char_node_t **occurr, int arr_len, unsigned char c)
 {
     for (int i = 0; i < arr_len; i++) {
         if (c == occurr[i]->c) {
@@ -111,7 +115,7 @@ char_node_t **read_header_occurrs(FILE *input)
     occurr = malloc((nbr_nodes + 1) * sizeof(char_node_t *));
     for (int i = 0; i < nbr_nodes; i++) {
         occurr[i] = malloc(sizeof(char_node_t));
-        fread(&occurr[i]->c, sizeof(char), 1, input);
+        fread(&occurr[i]->c, sizeof(unsigned char), 1, input);
         fread(&occurr[i]->freq, sizeof(int), 1, input);
         occurr[i]->l = NULL;
         occurr[i]->r = NULL;
@@ -121,11 +125,12 @@ char_node_t **read_header_occurrs(FILE *input)
     return occurr;
 }
 
-char_node_t **get_occurr(char *file_buff, long file_len)
+char_node_t **get_occurr(unsigned char *file_buff, long file_len)
 {
     int occurr_len = 0;
     char_node_t **occurr = calloc(1, sizeof(char_node_t *));
     int char_i = -1;
+    long total = 0;
 
     if (!occurr) {
         perror("Could not allocate for occurrence array");
@@ -133,6 +138,7 @@ char_node_t **get_occurr(char *file_buff, long file_len)
     }
     occurr[0] = NULL;
     for (int i = 0; i < file_len; i++) {
+        total++;
         char_i = get_char_index(occurr, occurr_len, file_buff[i]);
 
         if (char_i != -1) {

@@ -25,7 +25,6 @@ unsigned char *extract_compressed(char *filepath, int start_i, int *nbr_bits)
     fseek(input, 0, SEEK_END);
     compressed_bytes = ftell(input) - start_i;
     *nbr_bits = compressed_bytes;
-    //printf("%li - %li\n", ftell(input), compressed_bytes);
     compressed_data = malloc(compressed_bytes * sizeof(char));
     if (!compressed_data) {
         fclose(input);
@@ -39,7 +38,6 @@ unsigned char *extract_compressed(char *filepath, int start_i, int *nbr_bits)
 char_node_t **read_header(char *filepath, int *end_header_i, int *nbr_bits_compress)
 {
     char_node_t **occurr_arr = NULL;
-    //int nbr_bits = 0; // representing the accual compressed data
     FILE *input = fopen(filepath, "rb");
 
     if (!input) {
@@ -70,16 +68,11 @@ int uncompress(char *filepath)
     if (!occurr_arr) {
         return EXIT_FAILURE;
     }
-    /*printf("Extracted:\n");
-    for (int i = 0; occurr_arr[i]; i++) {
-        printf("%c: %i\n", occurr_arr[i]->c, occurr_arr[i]->freq);
-    }*/
     tree = gen_tree(occurr_arr);
     if (!tree) {
         free_occurr_arr(occurr_arr);
         return EXIT_FAILURE;
     }
-    //print_tree(tree, get_tree_depth(tree));
     codes = get_codes(tree, get_occurr_len(occurr_arr));
     if (!codes) {
         free_tree(tree);
@@ -93,7 +86,6 @@ int uncompress(char *filepath)
         free_codes(codes);
         return EXIT_FAILURE;
     }
-    //printf("%s\n", compressed_bytes);
     write_uncompressed(codes, compressed_bytes, nbr_bytes, get_tree_depth(tree), bits_compress);
     free_tree(tree);
     free_occurr_arr(occurr_arr);

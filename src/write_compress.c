@@ -36,7 +36,7 @@ char *add_bin_code_to_buff(char c, code_t **codes, char *compress_buff, int *buf
     return compress_buff;
 }
 
-bit_buffer_t *get_compress(code_t **codes, char *file_buff, int buff_len)
+bit_buffer_t *get_compress(code_t **codes, unsigned char *file_buff, int buff_len)
 {
     bit_buffer_t *bit_buff = create_bit_buffer(128);
     char *code = NULL;
@@ -97,7 +97,7 @@ int write_binary(bit_buffer_t *compressed_buff, FILE *output)
     return EXIT_SUCCESS;
 }
 /**
- * Header: <nbr of bits><nbr of chars>[<char><occurrence>...]
+ * Header: <huffman compressed file signature><nbr of bits><nbr of chars>[<char><occurrence>...]
  */
 int write_header(char_node_t **occurr, int nbr_occurr, bit_buffer_t *compressed_buff, FILE *output)
 {
@@ -108,7 +108,7 @@ int write_header(char_node_t **occurr, int nbr_occurr, bit_buffer_t *compressed_
 
 int write_compress(
     code_t **codes,
-    char *file_buff, int buff_len,
+    unsigned char *file_buff, int buff_len,
     char_node_t **occurr_arr, int occurr_len)
 {
     FILE *output = NULL;

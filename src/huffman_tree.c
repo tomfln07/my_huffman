@@ -51,25 +51,28 @@ void free_tree(char_node_t *tree)
 }
 
 /**
- * Creates a deep copty of the occurrence array 
+ * Creates a deep copy of the occurrence array 
  * that'll be used as a priority queue for the creation of the huffman tree
+ * If it fails, the occurrence array won't be copied to dest
+ * @param src The array to copy
+ * @param dest Where to copy
+ * @param len The size of the original array
  */
-char_node_t **occurr_cpy(char_node_t **occurr_arr, int len)
+int occurr_cpy(char_node_t **src, char_node_t ***dest, int len)
 {
     char_node_t **cpy_arr = NULL;
 
-    if (!occurr_arr) {
+    if (!src) {
         perror("Invalid NULL occurrence array passed for deep copy");
-        return NULL;
+        return EXIT_FAILURE;
     }
     cpy_arr = calloc(len + 1, sizeof(char_node_t *));
-    // malloc((len + 1) * sizeof(char_node_t *));
     if (!cpy_arr) {
         perror("Could not allocate memory for the deep copy of the occurrence array");
-        return NULL;
+        return EXIT_FAILURE;
     }
     for (int i = 0; i < len; i++) {
-        if (!occurr_arr[i]) {
+        if (!src[i]) {
             cpy_arr[i] = NULL;
             continue;
         }
@@ -77,16 +80,17 @@ char_node_t **occurr_cpy(char_node_t **occurr_arr, int len)
         if (!cpy_arr[i]) {
             perror("Could not malloc for copied occurrecne node");
             free_nodes_list(cpy_arr, len);
-            return NULL;
+            return EXIT_FAILURE;
         }
-        cpy_arr[i]->c = occurr_arr[i]->c;
-        cpy_arr[i]->freq = occurr_arr[i]->freq;
+        cpy_arr[i]->c = src[i]->c;
+        cpy_arr[i]->freq = src[i]->freq;
         cpy_arr[i]->l = NULL;
         cpy_arr[i]->r = NULL;
-        cpy_arr[i]->type = occurr_arr[i]->type;
+        cpy_arr[i]->type = src[i]->type;
     }
     cpy_arr[len] = NULL;
-    return cpy_arr;
+    *dest = cpy_arr;
+    return EXIT_SUCCESS;
 }
 
 char_node_t *new_internal_node(char_node_t *node1, char_node_t *node2)
@@ -162,8 +166,7 @@ char_node_t *gen_tree(char_node_t **occurr)
         return NULL;
     }
     occurr_len = get_occurr_len(occurr);
-    prio_queue = occurr_cpy(occurr, occurr_len);
-    if (!prio_queue) {
+    if (occurr_cpy(occurr, &prio_queue, occurr_len)) {
         return NULL;
     }
     while (internal_nodes_ceated < occurr_len - 1) {

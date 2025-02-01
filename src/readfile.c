@@ -12,14 +12,15 @@ long get_file_len(FILE *file)
     return file_len;
 }
 
-char *readfile(char *path, long *len)
+unsigned char *readfile(char *path, long *len)
 {
-    char *file_content = NULL;
-    FILE *file = fopen(path, "r");
+    unsigned char *file_content = NULL;
+    FILE *file = fopen(path, "rb");
     long file_len = 0;
     long bytes_read = 0;
 
     if (file == NULL) {
+        printf("%s\n", path);
         perror("Could not open file to compress");
         return NULL;
     }
