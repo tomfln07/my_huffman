@@ -18,5 +18,8 @@ typedef struct char_node_s {
 char_node_t *gen_tree(char_node_t **occurr);
 int get_tree_depth(char_node_t *tree);
 void free_tree(char_node_t *tree);
+void free_nodes_list(char_node_t **nodes, int len);
 void print_tree(char_node_t *node, int depth);
+char_node_t *new_internal_node(char_node_t *node1, char_node_t *node2);
+int occurr_cpy(char_node_t **src, char_node_t ***dest, int len);
 #endif
