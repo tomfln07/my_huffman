@@ -6,6 +6,7 @@ uncompressed
 bin/*
 !bin/.gitkeep
 .vscode
-readme.md
 tests_files
 test_compress.sh
+
+todo.txt

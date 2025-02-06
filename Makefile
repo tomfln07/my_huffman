@@ -18,9 +18,10 @@ SRC_OBJS = $(SRC_FILES:.c=.o)
 DBG_SRC_OBJS = $(SRC_FILES:.c=.dbg.o)
 TESTS_OBJS = $(TESTS_FILES:.c=.o)
 
-BIN_NAME = huffman
-DBG_BIN_NAME = huffman_debug
-TESTS_NAME = huffman_tests
+BASE_NAME = my_huffman
+BIN_NAME = $(BASE_NAME)
+DBG_BIN_NAME = $(BASE_NAME)_debug
+TESTS_NAME = $(BASE_NAME)_tests
 
 GCC_FLAGS = -Iinclude -Wall -Wextra
 TESTS_FLAGS = --coverage -lcriterion
