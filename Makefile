@@ -15,8 +15,8 @@ TESTS_FILES =
 BIN_PATH = bin/
 
 SRC_OBJS = $(SRC_FILES:.c=.o)
+TESTS_OBJS = $(SRC_FILES:.c=.test.o) $(TESTS_FILES:.c=.test.o)
 DBG_SRC_OBJS = $(SRC_FILES:.c=.dbg.o)
-TESTS_OBJS = $(TESTS_FILES:.c=.o)
 
 BASE_NAME = my_huffman
 BIN_NAME = $(BASE_NAME)
@@ -39,8 +39,8 @@ re: fclean $(BIN_NAME)
 %.dbg.o: %.c
 	gcc $(GCC_FLAGS) $(DBG_FLAGS) -c $< -o $@
 
-$(TESTS_OBJS): %.o: %.c
-		gcc $(GCC_FLAGS) -c $< -o $@
+%.test.o: %.c
+	gcc $(GCC_FLAGS) $(TESTS_FLAGS) -c $< -o $@
 
 $(BIN_NAME):	$(SRC_OBJS) src/main.o
 				gcc -o $(BIN_PATH)$(BIN_NAME) $(SRC_OBJS) src/main.o $(GCC_FLAGS)
@@ -48,22 +48,16 @@ $(BIN_NAME):	$(SRC_OBJS) src/main.o
 $(DBG_BIN_NAME):	$(DBG_SRC_OBJS) src/main.dbg.o
 					gcc -o $(BIN_PATH)$(DBG_BIN_NAME) $(DBG_SRC_OBJS) src/main.dbg.o $(GCC_FLAGS) $(DBG_FLAGS)
 
-unit_tests: clean $(BIN_NAME) $(TESTS_OBJS)
+unit_tests: clean $(TESTS_OBJS)
 		gcc -o $(BIN_PATH)$(TESTS_NAME) $(TESTS_OBJS) $(GCC_FLAGS) $(TESTS_FLAGS)
 
 tests_run: unit_tests
 			./unit_tests
 
 clean:
-		rm -f */**/*.o
-		rm -f */*.o
-		rm -f *~
-		rm -f */**/*.gcno
-		rm -f */*.gcno
-		rm -f */**/*.gcda
-		rm -f */*.gcda
+		find . -type f -name "*.o" -delete
+		find . -type f \( -name "*.gcno" -o -name "*.gcda" \) -delete
+		find . -type f -name "*~" -delete
 
 fclean: clean
-		rm -f $(BIN_PATH)$(BIN_NAME)
-		rm -f $(BIN_PATH)$(DBG_BIN_NAME)
-		rm -f $(BIN_PATH)$(TESTS_NAME)
+		rm -f $(BIN_PATH)$(BIN_NAME) $(BIN_PATH)$(DBG_BIN_NAME) $(BIN_PATH)$(TESTS_NAME)

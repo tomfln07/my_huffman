@@ -35,6 +35,18 @@ unsigned char *extract_compressed(char *filepath, int start_i, int *nbr_bits)
     return compressed_data;
 }
 
+int is_file_sig_ok(FILE *input)
+{
+	unsigned int file_sig = 0;
+
+    fread(&file_sig, sizeof(unsigned int), 1, input);
+	if (file_sig != FILE_SIG) {
+		fprintf(stderr, "This file isn't a valid .lite compressed file.\n");
+		return EXIT_FAILURE;
+	}
+	return EXIT_SUCCESS;
+}
+
 char_node_t **read_header(char *filepath, int *end_header_i, int *nbr_bits_compress)
 {
     char_node_t **occurr_arr = NULL;
@@ -44,7 +56,11 @@ char_node_t **read_header(char *filepath, int *end_header_i, int *nbr_bits_compr
         perror("Could not open compressed file");
         return NULL;
     }
-    fread(nbr_bits_compress, sizeof(int), 1, input);
+	if (is_file_sig_ok(input) == EXIT_FAILURE) {
+		fclose(input);
+		return NULL;
+	}
+    fread(nbr_bits_compress, sizeof(unsigned int), 1, input);
     occurr_arr = read_header_occurrs(input);
     if (!occurr_arr) {
         fclose(input);

@@ -1,5 +1,6 @@
 #ifndef HUFFMAN_TREE_H
     #define HUFFMAN_TREE_H
+	#define FILE_SIG 0xD54C53AA // magic number in the header to identify compressed file, on 4 bytes
 
 enum node_type {
     INTERNAL,

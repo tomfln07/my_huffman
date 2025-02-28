@@ -4,7 +4,7 @@
     #include "huffman_tree.h"
 
 /**
- * Represent the compressed content of a file
+ * Represents the compressed content of a file
  */
 typedef struct bit_buffer_s
 {

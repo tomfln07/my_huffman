@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdint.h>
 #include "write_compress.h"
 #include "occurrences.h"
 #include "bit_buffer.h"
@@ -101,7 +102,9 @@ int write_binary(bit_buffer_t *compressed_buff, FILE *output)
  */
 int write_header(char_node_t **occurr, int nbr_occurr, bit_buffer_t *compressed_buff, FILE *output)
 {
-    // TODO: bytes sequence to identify compressed files before decompression
+	uint32_t magic = FILE_SIG;
+
+    fwrite(&magic, sizeof(unsigned int), 1, output);
     fwrite(&compressed_buff->used_bits, sizeof(unsigned int), 1, output);
     return dump_occurr_arr(occurr,  nbr_occurr, output);
 }
