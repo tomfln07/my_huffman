@@ -1,0 +1,31 @@
+#!/bin/bash
+
+file_paths=(
+    "test_files/img/bmp_sample.bmp"
+    "test_files/img/tiff_sample.tiff"
+    "test_files/text/csv_sample.csv"
+    "test_files/text/txt_sample.txt"
+    "test_files/audio/pcm_sample.pcm"
+    "test_files/audio/wav_sample.wav"
+)
+if ! make; then
+	echo "compilation failed."
+	exit 1
+fi
+clear
+
+echo "====== Compression ======"
+for file_path in "${file_paths[@]}"; do
+	echo "compressing \"$file_path\""
+	time ./bin/my_huffman $file_path
+	echo "original:" && ls -l $file_path
+	echo "compressed:" && ls -l $file_path.lite
+	echo ""
+done
+
+echo "====== Decompression ======"
+for file_path in "${file_paths[@]}"; do
+	echo "decompressing \"$file_path\""
+	time ./bin/my_huffman -d $file_path.lite
+	echo ""
+done
