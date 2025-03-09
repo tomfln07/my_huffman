@@ -20,6 +20,5 @@ flags_t *get_flags(int ac, char **av, int *last_flag_i)
         }   
         (*last_flag_i)++;
     }
-    //*last_flag_i = ac - 1;
     return flags;
 }

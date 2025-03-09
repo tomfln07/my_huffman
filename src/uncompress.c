@@ -102,7 +102,11 @@ int uncompress(char *filepath)
         free_codes(codes);
         return EXIT_FAILURE;
     }
-    write_uncompressed(codes, compressed_bytes, nbr_bytes, get_tree_depth(tree), bits_compress);
+    write_uncompressed(
+		codes,
+		compressed_bytes, nbr_bytes,
+		get_tree_depth(tree),
+		bits_compress, filepath);
     free_tree(tree);
     free_occurr_arr(occurr_arr);
     free_codes(codes);

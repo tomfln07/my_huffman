@@ -9,8 +9,9 @@ SRC_FILES = src/readfile.c \
 			src/huffman_tree/gen_tree.c \
 			src/huffman_tree/tree_utils.c \
 			src/write_files/write_compress.c \
-			src/write_files/write_uncompress.c
-TESTS_FILES = 	
+			src/write_files/write_uncompress.c \
+			src/file_name.c
+TESTS_FILES =
 
 BIN_PATH = bin/
 

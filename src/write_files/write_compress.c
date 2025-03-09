@@ -5,6 +5,7 @@
 #include "write_compress.h"
 #include "occurrences.h"
 #include "bit_buffer.h"
+#include "file_name.h"
 
 /**
  * Takes a char, and get its binary represention
@@ -59,7 +60,10 @@ bit_buffer_t *get_compress(code_t **codes, unsigned char *file_buff, int buff_le
         }
         code_len = strlen(code);
         for (int j = 0; j < code_len; j++) {
-            add_bit(bit_buff, code[j] - '0');
+			if (add_bit(bit_buff, code[j] - '0') == EXIT_FAILURE) {
+				free_bit_buff(bit_buff);
+				return NULL;
+			}
         }
     }
     return bit_buff;
@@ -89,12 +93,8 @@ int write_binary(bit_buffer_t *compressed_buff, FILE *output)
     if ((compressed_buff->used_bits / 8.0 > 0 && bytes_wrote != compressed_buff->used_bits / 8 + 1)
         || (compressed_buff->used_bits / 8.0 < 0 && bytes_wrote != compressed_buff->used_bits / 8)) {
         perror("Could not write the entirety of the compressed data");
-        fclose(output);
-        free_bit_buff(compressed_buff);
         return EXIT_FAILURE;
     }
-    fclose(output);
-    free_bit_buff(compressed_buff);
     return EXIT_SUCCESS;
 }
 /**
@@ -109,30 +109,60 @@ int write_header(char_node_t **occurr, int nbr_occurr, bit_buffer_t *compressed_
     return dump_occurr_arr(occurr,  nbr_occurr, output);
 }
 
-int write_compress(
-    code_t **codes,
-    unsigned char *file_buff, int buff_len,
-    char_node_t **occurr_arr, int occurr_len)
+int write_bit_buff(
+	bit_buffer_t *compressed_buff,
+	char_node_t **occurr_arr, int occurr_len,
+	char *output_file_name)
 {
     FILE *output = NULL;
-    bit_buffer_t *compressed_buff = NULL;
-    
-    if (!file_buff || !codes) {
-        perror("Invalid NULL file_buff or codes for buff to binary conversion");
-        return EXIT_FAILURE;
-    }
-    output = fopen("test.lite", "wb");
+	int write_status = EXIT_SUCCESS;
+	
+	if (!compressed_buff || !occurr_arr 
+		|| occurr_len < 0 || !output_file_name) {
+		return EXIT_FAILURE;
+	}
+	output = fopen(output_file_name, "wb");
     if (!output) {
         perror("Could not create a new file for the compressed data");
         return EXIT_FAILURE;
     }
-    compressed_buff = get_compress(codes, file_buff, buff_len);
-    if (!compressed_buff) {
+    if (write_header(
+			occurr_arr, occurr_len,
+			compressed_buff, output) == EXIT_FAILURE) {
         fclose(output);
+		return EXIT_FAILURE;
+    }
+	write_status = write_binary(compressed_buff, output);
+	fclose(output);
+	return write_status;
+}
+
+int write_compress(
+    code_t **codes,
+    unsigned char *file_buff, int buff_len,
+    char_node_t **occurr_arr, int occurr_len,
+	char *input_file_name)
+{
+    bit_buffer_t *compressed_buff = NULL;
+	int write_status = EXIT_SUCCESS;
+	int output_file_len = input_file_name ? strlen(input_file_name) + strlen(EXT) : 0;
+	char output_file_name[output_file_len];
+
+    if (!file_buff || !codes) {
+        perror("Invalid NULL file_buff or codes for buff to binary conversion");
         return EXIT_FAILURE;
     }
-    if (write_header(occurr_arr, occurr_len, compressed_buff, output) == EXIT_SUCCESS) {
-        return write_binary(compressed_buff, output);
+	if (add_compression_ext(input_file_name, output_file_name) == EXIT_FAILURE) {
+		return EXIT_FAILURE;
+	}
+    compressed_buff = get_compress(codes, file_buff, buff_len);
+    if (!compressed_buff) {
+        return EXIT_FAILURE;
     }
-    return EXIT_FAILURE;
+	write_status = write_bit_buff(
+		compressed_buff,
+		occurr_arr, occurr_len,
+		output_file_name);
+	free_bit_buff(compressed_buff);
+    return write_status;
 }

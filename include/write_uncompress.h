@@ -9,5 +9,6 @@ static const unsigned char HEADER_END_MARKER[HEM_ARR_LENGHT] = { HEM, HEM, HEM }
 int write_uncompressed(
     code_t **codes,
     unsigned char *compressed_bytes, int nbr_bytes,
-    int max_code_len, int bits_to_read);
+    int max_code_len, int bits_to_read,
+	char *input_file_name);
 #endif

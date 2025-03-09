@@ -58,7 +58,11 @@ int compress(char *file)
         free_all(file_buff, occurr_arr, tree, codes);
         return EXIT_FAILURE;
     }
-    write_compress(codes, file_buff, file_len, occurr_arr, occurr_len);
+    write_compress(
+		codes,
+		file_buff, file_len,
+		occurr_arr, occurr_len,
+		file);
     free_all(file_buff, occurr_arr, tree, codes);
     return EXIT_SUCCESS;
 }

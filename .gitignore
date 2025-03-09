@@ -6,7 +6,8 @@ uncompressed
 bin/*
 !bin/.gitkeep
 .vscode
-tests_files
-test_compress.sh
+
+test_files
+exec
 
 todo.txt
